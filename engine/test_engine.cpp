@@ -44,7 +44,7 @@ bool TestEngine::run(void)
     };
 
 
-    vector<Point> finding_points = {Point(0, 100), Point(100, 100)};
+    vector<Point> finding_points = {Point(50, 50), Point(50, -50)};
     vector<Point> start_points = {Point(0, 0), Point(100, 0)};
 
 //    vector<Shape*> shapes_vector =

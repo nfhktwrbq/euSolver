@@ -28,7 +28,7 @@ private:
     bool chekc_intersections(vector<Point> & candidates);
     void permutate_points(vector<Point> & points, vector<pair<Point, Point>> & permutated_points);
     bool is_already_exist(vector<Shape*>::iterator shape_it) const;
-    bool contains_all(const std::vector<Point>& vec1, const std::vector<Point>& vec2) const;
+    void concat_points(vector<Point> * old_intersections, vector<Point> * new_intersections) const;
 };
 
 #endif // ENGINE_H
