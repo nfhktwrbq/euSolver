@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2023 <copyright holder> <email>
 // SPDX-License-Identifier: MIT
 
+#include <math.h>
 #include <format>
 #include "dot.h"
 #include "line.h"
@@ -65,3 +66,22 @@ void Line::get_intersections(Shape * shape, vector<Point>& intersections) const
     }
 }
 
+void Line::print(void) const
+{
+    cout << std::format("Line: k {:.2f}, b: {:.2f}\n", this->k_, this->b_);
+}
+
+bool Line::equals(Shape * shape) const
+{
+    bool result = false;
+
+    if (Line * line = dynamic_cast<Line*>(shape); line != nullptr)
+    {
+        if (fabs(line->get_k() - this->k_)  < GD_EPSILON && fabs(line->get_b() - this->b_) < GD_EPSILON )
+        {
+            result = true;
+        }
+    }
+
+    return result;
+}

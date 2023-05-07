@@ -59,7 +59,7 @@ void Intersection::line_line_intersection(real_t k0, real_t b0, real_t k1, real_
 {
     vector<pair<real_t, real_t>> * result = nullptr;
 
-    if (fabs(k0 - k1) > GD_EPSILON)
+    if (fabs(k0 - k1) >= GD_EPSILON)
     {
         real_t x = (b1 - b0) / (k0 - k1);
         real_t y = k0 * x + b0;
@@ -71,7 +71,7 @@ void Intersection::line_line_intersection(real_t k0, real_t b0, real_t k1, real_
 void Intersection::dot_circle_intersection(real_t x, real_t y, real_t xc, real_t yc, real_t r, vector<Point>& intersections)
 {
     vector<pair<real_t, real_t>> * result = nullptr;
-    if (abs((x - xc) * (x - xc) + (y - yc) * (y - yc) - r) < GD_EPSILON)
+    if (sqrt((x - xc) * (x - xc) + (y - yc) * (y - yc) - r * r) < GD_EPSILON)
     {
         DebugOutput() << std::format("Dot circle intersection:\n");
         add_point_(intersections, Point(x, y));
@@ -143,7 +143,7 @@ void Intersection::circle_circle_intersection(real_t xc0, real_t yc0, real_t r0,
     real_t y4 = y2 + h * (xc1 - xc0) / d;
 
     // Добавляем точки пересечения в вектор
-    if (fabs(x3 -x4) + fabs(y3 - y4) < GD_EPSILON)
+    if (fabs(x3 -x4) < GD_EPSILON && fabs(y3 - y4) < GD_EPSILON)
     {
         DebugOutput() << std::format("Circle circle touch:\n");
         add_point_(intersections, Point(x3, y3));

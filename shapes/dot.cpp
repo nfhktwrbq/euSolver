@@ -1,6 +1,8 @@
 // SPDX-FileCopyrightText: 2023 <copyright holder> <email>
 // SPDX-License-Identifier: MIT
 
+#include <math.h>
+#include <format>
 #include "dot.h"
 #include "line.h"
 #include "circle.h"
@@ -55,3 +57,23 @@ void Dot::get_intersections(Shape * shape, vector<Point>& intersections) const
     }
 }
 
+void Dot::print(void) const
+{
+    cout << std::format("Dot: x {:.2f}, y: {:.2f}\n", this->x_, this->y_);
+}
+
+bool Dot::equals(Shape * shape) const
+{
+    bool result = false;
+
+    if (Dot * dot = dynamic_cast<Dot*>(shape); dot != nullptr)
+    {
+        pair<real_t, real_t> dot_pair = dot->get_dot();
+        if (fabs(dot_pair.first - this->x_) < GD_EPSILON && fabs(dot_pair.second - this->y_) < GD_EPSILON)
+        {
+            result = true;
+        }
+    }
+
+    return result;
+}

@@ -29,6 +29,8 @@ public:
     pair<real_t, real_t> get_dot(void) const;
     virtual void define_with_points(Point & point_0, Point & point_1);
     virtual void get_intersections(Shape * shape, vector<Point>& intersections) const;
+    virtual void print(void) const;
+    virtual bool equals(Shape * shape) const;
 
 private:
      real_t y_;

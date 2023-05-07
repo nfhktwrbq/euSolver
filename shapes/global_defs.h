@@ -2,7 +2,7 @@
 #define GLOBAL_DEFS_H
 #include <iostream>
 #include <string>
-typedef float real_t;
+typedef double real_t;
 
 struct Point
 {

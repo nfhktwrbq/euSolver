@@ -20,20 +20,58 @@ TestEngine::~TestEngine()
 
 bool TestEngine::run(void)
 {
-    Shape * circle0 = new Circle();
-    Shape * circle1 = new Circle();
-    Shape * line0 = new Line();
-    Shape * line1 = new Line();
+    bool result = false;
 
-    vector<Shape*> shapes_vector = {circle0, circle1, line0, line1};
-    vector<Point> finding_points = {Point(1, 1)};
-    vector<Point> start_points = {Point(0, 0), Point(2, 2)};
+//    Shape * circle0 = new Circle();
+//    Shape * circle1 = new Circle();
+//    Shape * line0 = new Line();
+//    Shape * line1 = new Line();
+//
+//    vector<Shape*> shapes_vector = {circle0, circle1, line0, line1};
+//
+//    vector<Point> finding_points = {Point(50, 50)};
+//    vector<Point> start_points = {Point(0, 0), Point(100, 100)};
+
+    vector<Shape*> shapes_vector =
+            {
+                    new Circle(),
+                    new Circle(),
+                    new Circle(),
+                    new Circle(),
+                    new Circle(),
+                    new Circle(),
+                    new Circle(),
+    };
+
+
+    vector<Point> finding_points = {Point(0, 100), Point(100, 100)};
+    vector<Point> start_points = {Point(0, 0), Point(100, 0)};
+
+//    vector<Shape*> shapes_vector =
+//            {
+//                    new Circle(),
+//                    new Circle(),
+//                    new Circle(),
+//            };
+//
+//
+//    vector<Point> finding_points = {Point(150, 0), Point(-150, 0)};
+//    vector<Point> start_points = {Point(50, 0), Point(-50, 0)};
 
     Engine engine(&shapes_vector, &start_points, &finding_points);
 
     vector<Shape*>::iterator shape_it = shapes_vector.begin();
 
-    return engine.solve(&start_points, shape_it);
+    if (engine.solve(&start_points, shape_it))
+    {
+        cout << "\nSolution:\n";
+        for (const auto i : shapes_vector)
+        {
+            cout << (*i);
+        }
+        result = true;
+    }
+    return result;
 }
 
 

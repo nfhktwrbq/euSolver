@@ -52,6 +52,9 @@ void Circle::define_with_points(Point & point_0, Point & point_1)
                                  point_0.x, point_0.y, point_1.x, point_1.y);
     this->xc_ = point_0.x;
     this->yc_ = point_0.y;
+    this->xr_ = point_1.x;
+    this->yr_ = point_1.y;
+
     this->r_ = sqrt((point_0.x - point_1.x) * (point_0.x - point_1.x) + (point_0.y - point_1.y) * (point_0.y - point_1.y));
 }
 
@@ -73,4 +76,24 @@ void Circle::get_intersections(Shape * shape, vector<Point>& intersections) cons
     }
 }
 
+void Circle::print(void) const
+{
+    cout << std::format("Circle: x {:.6f}, y: {:.6f}, xr {:.6f}, yr: {:.6f}, r: {:.6f}\n", this->xc_, this->yc_, this->xr_, this->yr_, this->r_);
+}
 
+bool Circle::equals(Shape * shape) const
+{
+    bool result = false;
+
+    if (Circle * circle = dynamic_cast<Circle*>(shape); circle != nullptr)
+    {
+        if (fabs(circle->get_xc() - this->xc_) < GD_EPSILON &&
+            fabs(circle->get_yc() - this->yc_) < GD_EPSILON &&
+            fabs(circle->get_r() - this->r_) < GD_EPSILON )
+        {
+            result = true;
+        }
+    }
+
+    return result;
+}
