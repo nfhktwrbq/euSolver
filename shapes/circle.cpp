@@ -46,7 +46,7 @@ real_t Circle::get_r() const
     return this->r_;
 }
 
-void Circle::define_with_points(Point & point_0, Point & point_1)
+void Circle::define_with_points(const Point & point_0, const Point & point_1)
 {
     if (!this->is_anchored_)
     {
@@ -67,8 +67,7 @@ void Circle::get_intersections(Shape * shape, vector<Point>& intersections) cons
 
     if (Dot * dot = dynamic_cast<Dot*>(shape); dot != nullptr)
     {
-        auto dot_pair = dot->get_point();
-        Intersection::dot_circle_intersection(dot_pair.x, dot_pair.y, this->xc_, this->yc_, this->r_, intersections);
+        Intersection::dot_circle_intersection(*dot, *this, intersections);
     }
     else if (Line * line = dynamic_cast<Line*>(shape); line != nullptr)
     {
@@ -76,7 +75,7 @@ void Circle::get_intersections(Shape * shape, vector<Point>& intersections) cons
     }
     else if (Circle * circle = dynamic_cast<Circle*>(shape); circle != nullptr)
     {
-        Intersection::circle_circle_intersection(this->xc_, this->yc_, this->r_, circle->get_xc(), circle->get_yc(), circle->get_r(), intersections);
+        Intersection::circle_circle_intersection(*this, *circle, intersections);
     }
 }
 

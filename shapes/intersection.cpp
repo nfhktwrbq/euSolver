@@ -30,163 +30,88 @@ void Intersection::dot_dot_intersection(real_t x0, real_t y0, real_t x1, real_t 
     }
 }
 
-void Intersection::dot_line_intersection(real_t x, real_t y, real_t k, real_t b, vector<Point>& intersections)
+void Intersection::dot_line_intersection(const Dot & dot, const Line & line, vector<Point>& intersections)
 {
-    vector<pair<real_t, real_t>> * result = nullptr;
+    Point p = dot.get_point();
 
-    if (fabs(k * x + b - y) < GD_EPSILON)
+    if (fabs(line.a*p.x + line.b*p.y + line.c) < GD_EPSILON)
     {
         DebugOutput() << std::format("Dot line intersection:\n");
-        add_point_(intersections, Point(x, y));
-    }
-}
-
-void Intersection::line_line_intersection(real_t a0, real_t b0, real_t c0, real_t a1, real_t b1, real_t c1, vector<Point>& intersections)
-{
-    double determinant = a0*b1 - a1*b0;
-
-    vector<pair<real_t, real_t>> * result = nullptr;
-
-    if (determinant != 0)
-    {
-        double x = (b1*c0 - b0*c1)/determinant;
-        double y = (a0*c1 - a1*c0)/determinant;
-        DebugOutput() << std::format("Line line intersection:\n");
-        add_point_(intersections, Point(x, y));
+        add_point_(intersections, p);
     }
 }
 
 void Intersection::line_line_intersection(const Line& line0, const Line& line1, vector<Point>& intersections)
 {
-    if (isinf(line0.get_k()) && !isinf(line1.get_k()))
-    {
-        real_t x = line0.get_x();
-        real_t y = line1.get_k() * x + line1.get_b();
-        add_point_(intersections, Point(x, y));
-    }
-    else if (!isinf(line0.get_k()) && isinf(line1.get_k()))
-    {
-        real_t x = line1.get_x();
-        real_t y = line0.get_k() * x + line0.get_b();
-        add_point_(intersections, Point(x, y));
-    }
-    else if (!isinf(line0.get_k()) && !isinf(line1.get_k()))
-    {
-        line_line_intersection(line0.get_k(), line0.get_b(), line1.get_k(), line1.get_b(), intersections);
-    }
-}
+    real_t determinant = line0.a * line1.b - line1.a * line0.b;
 
-void Intersection::dot_line_intersection(const Dot& dot, const Line& line, vector<Point>& intersections)
-{
-    Point point = dot.get_point();
-    if (isinf(line.get_k()))
+    if (determinant > GD_EPSILON)
     {
-        if (fabs(point.x - line.get_x()) < GD_EPSILON)
-        {
-            add_point_(intersections, point);
-        }
-    }
-    else
-    {
-        dot_line_intersection(point.x, point.y, line.get_k(), line.get_b(), intersections);
-    }
-}
-
-void Intersection::line_circle_intersection(const Line& line, const Circle& circle, vector<Point>& intersections)
-{
-    if (isinf(line.get_k()))
-    {
-        real_t r = circle.get_r();
-        real_t x0 = circle.get_xc();
-        real_t y0 = circle.get_yc();
-        real_t x = line.get_x();
-
-        real_t d = std::sqrt(r * r - (x - x0) * (x - x0)); // дискриминант
-        if (std::isnan(d))
-        {
-            return;
-        }
-        else if (d < GD_EPSILON)
-        {
-            Point p1;
-            p1.x = x;
-            p1.y = y0;
-            add_point_(intersections, p1);
-        } else {
-            Point p1;
-            Point p2;
-            p1.x = x;
-            p1.y = y0 + d;
-            p2.x = x;
-            p2.y = y0 - d;
-            add_point_(intersections, p1);
-            add_point_(intersections, p2);
-        }
-    }
-    else
-    {
-        line_circle_intersection(line.get_k(), line.get_b(), circle.get_xc(), circle.get_yc(), circle.get_r(), intersections);
-    }
-}
-
-void Intersection::line_line_intersection(real_t k0, real_t b0, real_t k1, real_t b1, vector<Point>& intersections)
-{
-    if (fabs(k0 - k1) >= GD_EPSILON)
-    {
-        real_t x = (b1 - b0) / (k0 - k1);
-        real_t y = k0 * x + b0;
+        real_t x = (line1.b*line0.c - line0.b*line1.c)/determinant;
+        real_t y = (line0.a*line1.c - line1.a*line0.c)/determinant;
         DebugOutput() << std::format("Line line intersection:\n");
         add_point_(intersections, Point(x, y));
     }
 }
 
-void Intersection::dot_circle_intersection(real_t x, real_t y, real_t xc, real_t yc, real_t r, vector<Point>& intersections)
+void Intersection::line_circle_intersection(const Line& line, const Circle& circle, vector<Point>& intersections)
 {
-    vector<pair<real_t, real_t>> * result = nullptr;
-    if (sqrt((x - xc) * (x - xc) + (y - yc) * (y - yc) - r * r) < GD_EPSILON)
+    Point p1, p2;
+    const real_t r = circle.get_r();
+    const Point c(circle.get_xc(), circle.get_yc());
+
+    line.get_points(p1, p2);
+    real_t dx = p2.x - p1.x;
+    real_t dy = p2.y - p1.y;
+    real_t a = dx*dx + dy*dy;
+    real_t b = 2*(dx*(p1.x-c.x) + dy*(p1.y-c.y));
+    real_t c1 = c.x*c.x + c.y*c.y + p1.x*p1.x + p1.y*p1.y - 2*(c.x*p1.x + c.y*p1.y) - r*r;
+    real_t discriminant = b*b - 4*a*c1;
+
+    if (discriminant < -GD_EPSILON)
     {
-        DebugOutput() << std::format("Dot circle intersection:\n");
-        add_point_(intersections, Point(x, y));
-    }
-}
-
-void Intersection::line_circle_intersection(real_t k, real_t b, real_t xc, real_t yc, real_t r, vector<Point>& intersections)
-{
-    // Решаем квадратное уравнение для нахождения точек пересечения
-    real_t A = 1.0 + k * k;
-    real_t B = -2.0 * xc + 2.0 * k * (b - yc);
-    real_t C = xc * xc + (b - yc) * (b - yc) - r * r;
-
-    real_t D = B * B - 4.0 * A * C;
-
-    if (D < 0.0)
+    } else if (discriminant < GD_EPSILON)
     {
-
-    }
-    else if (D == 0.0)
-    {
-        // Одна точка пересечения
-        real_t x = -B / (2.0 * A);
-        real_t y = k * x + b;
-        DebugOutput() << std::format("Line circle touch:\n");
+        real_t t = -b / (2*a);
+        real_t x = p1.x + t*dx;
+        real_t y = p1.y + t*dy;
         add_point_(intersections, Point(x, y));
     } else
     {
-        // Две точки пересечения
-        real_t x0 = (-B + sqrt(D)) / (2.0 * A);
-        real_t y0 = k * x0 + b;
-
-        real_t x1 = (-B - sqrt(D)) / (2.0 * A);
-        real_t y1 = k * x1 + b;
-
-        DebugOutput() << std::format("Line circle intersection:\n");
-        add_point_(intersections, Point(x0, y0));
+        real_t t1 = (-b + std::sqrt(discriminant)) / (2*a);
+        real_t x1 = p1.x + t1*dx;
+        real_t y1 = p1.y + t1*dy;
+        real_t t2 = (-b - std::sqrt(discriminant)) / (2*a);
+        real_t x2 = p1.x + t2*dx;
+        real_t y2 = p1.y + t2*dy;
         add_point_(intersections, Point(x1, y1));
+        add_point_(intersections, Point(x2, y2));
     }
 }
 
-void Intersection::circle_circle_intersection(real_t xc0, real_t yc0, real_t r0, real_t xc1, real_t yc1, real_t r1, vector<Point>&  intersections)
+void Intersection::dot_circle_intersection(const Dot & dot, const Circle & circle, vector<Point>& intersections)
 {
+    Point p = dot.get_point();
+    real_t xc = circle.get_xc();
+    real_t yc = circle.get_yc();
+    real_t r = circle.get_r();
+    if (sqrt((p.x - xc) * (p.x - xc) + (p.y - yc) * (p.y - yc) - r * r) < GD_EPSILON)
+    {
+        DebugOutput() << std::format("Dot circle intersection:\n");
+        add_point_(intersections, p);
+    }
+}
+
+void Intersection::circle_circle_intersection(const Circle & circle0, const Circle & circle1, vector<Point>&  intersections)
+{
+    real_t xc0 = circle0.get_xc();
+    real_t yc0 = circle0.get_yc();
+    real_t r0 = circle0.get_r();
+
+    real_t xc1 = circle1.get_xc();
+    real_t yc1 = circle1.get_yc();
+    real_t r1 = circle1.get_r();
+
     // Находим расстояние между центрами окружностей
     real_t d = sqrt((xc1 - xc0) * (xc1 - xc0) + (yc1 - yc0) * (yc1 - yc0));
 

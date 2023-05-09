@@ -35,42 +35,59 @@ bool TestEngine::run(void)
     vector<Point> start_points = {Point(0, 0), Point(100, 0)};
 #endif
 
-#if 1
+#if 0
     vector<Shape*> shapes_vector =
             {
                     new Circle(Point(-100, 0), Point(0, 0)),
                     new Circle(Point(-33, 74.23610981),  Point(0, 0)),
-                    new Circle(Point(0, 0), Point(-110.219999998, 99.476387148)),
-                    new Circle(Point(-0.000000005, 148.472219622), Point(0, 0)),
-                    new Line(Point(-128.580713952, 74.236109807), Point(0, 0)),
+//                    new Circle(Point(0, 0), Point(-110.219999998, 99.476387148)),
+//                    new Circle(Point(-0.000000005, 148.472219622), Point(0, 0)),
+//                    new Line(Point(-128.580713952, 74.236109807), Point(0, 0)),
+//                    new Circle(),
+                    new Circle(),
+                    new Circle(),
+                    new Line(),
                     new Line(),
                     new Line(),
     };
 
     shapes_vector[0]->drop_anchor();
     shapes_vector[1]->drop_anchor();
-    shapes_vector[2]->drop_anchor();
-    shapes_vector[3]->drop_anchor();
-    shapes_vector[4]->drop_anchor();
+//    shapes_vector[2]->drop_anchor();
+//    shapes_vector[3]->drop_anchor();
+//    shapes_vector[4]->drop_anchor();
 //    shapes_vector[5]->drop_anchor();
 
-    Point p1(-150, 50);
-    Point p2(-150, -50);
-    vector<Shape*> finding_shapes = {new Line(0.577350269, 0), new Line(-0.577350269, 0), new Line(p1, p2)};
+
+    vector<Shape*> finding_shapes = {
+            new Line(Point(0, 0), Point(-150, 86.60254038)),
+            new Line(Point(0, 0), Point(-150, -86.60254038)),
+            new Line(Point(-150, 50), Point(-150, -50))};
 //    vector<Shape*> finding_shapes = {new Line(-0.577350269, 0), new Line(0.577350269, 0)};
 //    vector<Shape*> finding_shapes = {new Dot(-150, 86.60254038), new Dot(-150, -86.60254038)};
     vector<Point> start_points = {Point(0, 0)};
-//    shapes_vector[0]->get_intersections(shapes_vector[1], start_points);
+    shapes_vector[0]->get_intersections(shapes_vector[1], start_points);
 //    shapes_vector[0]->get_intersections(shapes_vector[2], start_points);
-    shapes_vector[2]->get_intersections(shapes_vector[3], start_points);
+//    shapes_vector[2]->get_intersections(shapes_vector[3], start_points);
 
     for (auto p: start_points)
     {
         cout << std::format("Intersect: x {:.9f}, y: {:.9f}\n", p.x, p.y);
     }
+
+    Line * test_line_0 = new Line(Point(0, 0), Point(3,3));
+//    Line * test_line_1 = new Line(Point(-5, -5), Point(70,70));
+//    if (test_line_1->equals(test_line_0))
+//    {
+//        cout << "eq" << endl;
+//    }
+//    else
+//    {
+//        cout << "neq" << endl;
+//    }
 #endif
 
-#if 0
+#if 1
     vector<Shape*> shapes_vector =
             {
                     new Circle(Point(0, 0), Point(100, 0)),

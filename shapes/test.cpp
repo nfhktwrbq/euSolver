@@ -11,9 +11,9 @@ using namespace std;
 
 void test_intersection(void)
 {
-    Line line0(2,3);
-    Line line1(3,4);
-    Line line2(2,9);
+    Line line0(Point(2,3), Point(20,30));
+    Line line1(Point(2,3), Point(20,30));
+    Line line2(Point(2,3), Point(20,30));
 
     vector<Point> intersections;
 

@@ -21,7 +21,6 @@ public:
      * Default constructor
      */
     Line(void);
-    Line(real_t k, real_t b);
     Line(Point point_0, Point point_1);
 
     /**
@@ -29,23 +28,21 @@ public:
      */
     ~Line();
 
-    real_t get_k(void) const;
-    real_t get_b(void) const;
-    real_t get_x(void) const;
-    real_t get_y(void) const;
+    virtual void get_points(Point & point_0, Point & point_1) const;
 
-    virtual void define_with_points(Point & point_0, Point & point_1);
+    virtual void define_with_points(const Point & point_0, const Point & point_1);
     virtual void get_intersections(Shape * shape, vector<Point>& intersections) const;
     virtual void print(void) const;
     virtual bool equals(Shape * shape) const;
 
+    real_t a;
+    real_t b;
+    real_t c;
 private:
-    real_t k_;
-    real_t b_;
-    real_t x0_;
-    real_t y0_;
-    real_t x1_;
-    real_t y1_;
+
+    Point p0_;
+    Point p1_;
+
 };
 
 #endif // LINE_H

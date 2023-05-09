@@ -9,7 +9,8 @@ struct Point
     real_t x;
     real_t y;
 
-    Point(real_t x = 0.0, real_t y = 0.0) : x(x), y(y) {}
+    Point(real_t x, real_t y) : x(x), y(y) {}
+    Point()  {}
 };
 
 #define GD_EPSILON  (0.001)

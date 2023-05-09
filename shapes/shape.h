@@ -15,7 +15,7 @@ using namespace std;
 class Shape
 {
 public:
-    virtual void define_with_points(Point & point_0, Point & point_1) = 0;
+    virtual void define_with_points(const Point & point_0, const Point & point_1) = 0;
     virtual void get_intersections(Shape * shape, vector<Point>& intersections) const = 0;
     virtual bool equals(Shape * shape) const = 0;
     virtual void print(void) const = 0;

@@ -27,7 +27,7 @@ public:
     ~Dot();
 
     virtual Point get_point(void) const;
-    virtual void define_with_points(Point & point_0, Point & point_1);
+    virtual void define_with_points(const Point & point_0, const Point & point_1);
     virtual void get_intersections(Shape * shape, vector<Point>& intersections) const;
     virtual void print(void) const;
     virtual bool equals(Shape * shape) const;

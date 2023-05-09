@@ -31,7 +31,7 @@ Point Dot::get_point(void) const
     return Point(this->x_, this->y_);
 }
 
-void Dot::define_with_points(Point & point_0, Point & point_1)
+void Dot::define_with_points(const Point & point_0, const Point & point_1)
 {
     (void) point_1;
     this->x_ = point_0.x;
@@ -53,7 +53,7 @@ void Dot::get_intersections(Shape * shape, vector<Point>& intersections) const
     }
     else if (Circle * circle = dynamic_cast<Circle*>(shape); circle != nullptr)
     {
-        Intersection::dot_circle_intersection(this->x_, this->y_, circle->get_xc(), circle->get_yc(), circle->get_r(), intersections);
+        Intersection::dot_circle_intersection(*this, *circle, intersections);
     }
 }
 
