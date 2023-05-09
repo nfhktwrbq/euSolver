@@ -48,14 +48,18 @@ real_t Circle::get_r() const
 
 void Circle::define_with_points(Point & point_0, Point & point_1)
 {
-    DebugOutput() << std::format("Circle defined: x_0 {:.2f}, y_0: {:.2f}; x_1: {:.2f}, y_1: {:.2f}\n",
-                                 point_0.x, point_0.y, point_1.x, point_1.y);
-    this->xc_ = point_0.x;
-    this->yc_ = point_0.y;
-    this->xr_ = point_1.x;
-    this->yr_ = point_1.y;
+    if (!this->is_anchored_)
+    {
+        DebugOutput() << std::format("Circle defined: x_0 {:.2f}, y_0: {:.2f}; x_1: {:.2f}, y_1: {:.2f}\n",
+                                     point_0.x, point_0.y, point_1.x, point_1.y);
+        this->xc_ = point_0.x;
+        this->yc_ = point_0.y;
+        this->xr_ = point_1.x;
+        this->yr_ = point_1.y;
 
-    this->r_ = sqrt((point_0.x - point_1.x) * (point_0.x - point_1.x) + (point_0.y - point_1.y) * (point_0.y - point_1.y));
+        this->r_ = sqrt(
+                (point_0.x - point_1.x) * (point_0.x - point_1.x) + (point_0.y - point_1.y) * (point_0.y - point_1.y));
+    }
 }
 
 void Circle::get_intersections(Shape * shape, vector<Point>& intersections) const
@@ -63,12 +67,12 @@ void Circle::get_intersections(Shape * shape, vector<Point>& intersections) cons
 
     if (Dot * dot = dynamic_cast<Dot*>(shape); dot != nullptr)
     {
-        auto dot_pair = dot->get_dot();
-        Intersection::dot_circle_intersection(dot_pair.first, dot_pair.second, this->xc_, this->yc_, this->r_, intersections);
+        auto dot_pair = dot->get_point();
+        Intersection::dot_circle_intersection(dot_pair.x, dot_pair.y, this->xc_, this->yc_, this->r_, intersections);
     }
     else if (Line * line = dynamic_cast<Line*>(shape); line != nullptr)
     {
-        Intersection::line_circle_intersection(line->get_k(), line->get_b(), this->xc_, this->yc_, this->r_, intersections);
+        Intersection::line_circle_intersection(*line, *this, intersections);
     }
     else if (Circle * circle = dynamic_cast<Circle*>(shape); circle != nullptr)
     {

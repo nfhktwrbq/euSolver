@@ -19,7 +19,7 @@ Line::Line(real_t k, real_t b)
     this->b_ = b;
 }
 
-Line::Line(Point & point_0, Point & point_1)
+Line::Line(Point point_0, Point point_1)
 {
     this->define_with_points(point_0, point_1);
 }
@@ -39,12 +39,29 @@ real_t Line::get_b(void) const
     return this->b_;
 }
 
+real_t Line::get_x(void) const
+{
+    return this->x0_;
+}
+
+real_t Line::get_y(void) const
+{
+    return this->y0_;
+}
+
 void Line::define_with_points(Point & point_0, Point & point_1)
 {
-    DebugOutput() << std::format("Line defined: x_0 {:.2f}, y_0: {:.2f}; x_1: {:.2f}, y_1: {:.2f}\n",
-                                 point_0.x, point_0.y, point_1.x, point_1.y);
-    this->k_ = (point_1.y - point_0.y) / (point_1.x - point_0.x);
-    this->b_ = point_1.y - this->k_ * point_1.x;
+    if (!this->is_anchored_)
+    {
+        DebugOutput() << std::format("Line defined: x_0 {:.2f}, y_0: {:.2f}; x_1: {:.2f}, y_1: {:.2f}\n",
+                                     point_0.x, point_0.y, point_1.x, point_1.y);
+        this->k_ = (point_1.y - point_0.y) / (point_1.x - point_0.x);
+        this->b_ = point_1.y - this->k_ * point_1.x;
+        this->x0_ = point_0.x;
+        this->y0_ = point_0.y;
+        this->x1_ = point_1.x;
+        this->y1_ = point_1.y;
+    }
 }
 
 void Line::get_intersections(Shape * shape, vector<Point>& intersections) const
@@ -53,22 +70,22 @@ void Line::get_intersections(Shape * shape, vector<Point>& intersections) const
 
     if (Dot * dot = dynamic_cast<Dot*>(shape); dot != nullptr)
     {
-        auto dot_pair = dot->get_dot();
-        Intersection::dot_line_intersection(dot_pair.first, dot_pair.second, this->k_, this->b_, intersections);
+        Intersection::dot_line_intersection(*dot, *this, intersections);
     }
     else if (Line * line = dynamic_cast<Line*>(shape); line != nullptr)
     {
-        Intersection::line_line_intersection(this->k_, this->b_, line->get_k(), line->get_b(), intersections);
+        Intersection::line_line_intersection(*this, *line, intersections);
     }
     else if (Circle * circle = dynamic_cast<Circle*>(shape); circle != nullptr)
     {
-        Intersection::line_circle_intersection(this->k_, this->b_, circle->get_xc(), circle->get_yc(), circle->get_r(), intersections);
+        Intersection::line_circle_intersection(*this, *circle, intersections);
     }
 }
 
 void Line::print(void) const
 {
-    cout << std::format("Line: k {:.2f}, b: {:.2f}\n", this->k_, this->b_);
+    cout << std::format("Line: x0 {:.6f}, y0: {:.6f}, x1 {:.6f}, y1: {:.6f}, k {:.2f}, b: {:.2f}\n", this->x0_, this->y0_, this->x1_, this->y1_, this->k_, this->b_);
+
 }
 
 bool Line::equals(Shape * shape) const
@@ -77,9 +94,19 @@ bool Line::equals(Shape * shape) const
 
     if (Line * line = dynamic_cast<Line*>(shape); line != nullptr)
     {
-        if (fabs(line->get_k() - this->k_)  < GD_EPSILON && fabs(line->get_b() - this->b_) < GD_EPSILON )
+        if (isinf(line->get_k()) && isinf(this->k_))
         {
-            result = true;
+            if (fabs(line->get_x() - this->get_x()) < GD_EPSILON)
+            {
+                result = true;
+            }
+        }
+        if (!isinf(line->get_k()) && !isinf(this->k_))
+        {
+            if (fabs(line->get_k() - this->k_) < GD_EPSILON && fabs(line->get_b() - this->b_) < GD_EPSILON)
+            {
+                result = true;
+            }
         }
     }
 

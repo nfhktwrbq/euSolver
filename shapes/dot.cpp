@@ -26,9 +26,9 @@ Dot::~Dot()
 
 }
 
-pair<real_t, real_t> Dot::get_dot(void) const
+Point Dot::get_point(void) const
 {
-    return make_pair(this->x_, this->y_);
+    return Point(this->x_, this->y_);
 }
 
 void Dot::define_with_points(Point & point_0, Point & point_1)
@@ -44,12 +44,12 @@ void Dot::get_intersections(Shape * shape, vector<Point>& intersections) const
 
     if (Dot * dot = dynamic_cast<Dot*>(shape); dot != nullptr)
     {
-        auto dot_pair = dot->get_dot();
-        Intersection::dot_dot_intersection(this->x_, this->y_, dot_pair.first, dot_pair.second, intersections);
+        auto dot_pair = dot->get_point();
+        Intersection::dot_dot_intersection(this->x_, this->y_, dot_pair.x, dot_pair.y, intersections);
     }
     else if (Line * line = dynamic_cast<Line*>(shape); line != nullptr)
     {
-        Intersection::dot_line_intersection(this->x_, this->y_, line->get_k(), line->get_b(), intersections);
+        Intersection::dot_line_intersection(*this, *line, intersections);
     }
     else if (Circle * circle = dynamic_cast<Circle*>(shape); circle != nullptr)
     {
@@ -68,8 +68,8 @@ bool Dot::equals(Shape * shape) const
 
     if (Dot * dot = dynamic_cast<Dot*>(shape); dot != nullptr)
     {
-        pair<real_t, real_t> dot_pair = dot->get_dot();
-        if (fabs(dot_pair.first - this->x_) < GD_EPSILON && fabs(dot_pair.second - this->y_) < GD_EPSILON)
+        auto dot_pair = dot->get_point();
+        if (fabs(dot_pair.x - this->x_) < GD_EPSILON && fabs(dot_pair.y - this->y_) < GD_EPSILON)
         {
             result = true;
         }

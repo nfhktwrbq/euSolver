@@ -12,7 +12,7 @@ struct Point
     Point(real_t x = 0.0, real_t y = 0.0) : x(x), y(y) {}
 };
 
-#define GD_EPSILON  (0.000001)
+#define GD_EPSILON  (0.001)
 
 class DebugOutput {
 public:

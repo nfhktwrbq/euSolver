@@ -6,25 +6,42 @@
 #include <format>
 #include "engine.h"
 #include "global_defs.h"
+#include "dot.h"
 
-Engine::Engine(vector<Shape*> * shapes, vector<Point> * start_points, vector<Point> * finding_points)
+Engine::Engine(vector<Shape*> * shapes, vector<Point> * start_points, vector<Shape*> * finding_shapes)
 {
     this->shapes_ = shapes;
-    this->finding_points_ = finding_points;
     this->start_points_ = start_points;
     this->is_solved_ = false;
-
-    this->points_to_find_ =  *finding_points;
+    this->shapes_to_find_ = finding_shapes;
 }
 
-bool Engine::chekc_intersections(vector<Point> & candidates)
+bool Engine::chekc_intersections(vector<Point> & candidates, vector<Shape*>::iterator cur_shape_it)
 {
-    for (const auto& p2 : this->points_to_find_) {
+    for (const auto& shape_to_find : *this->shapes_to_find_)
+    {
         bool is_found = false;
-        for (const auto& p1 : candidates) {
-            if (std::abs(p1.x - p2.x) < GD_EPSILON && std::abs(p1.y - p2.y) < GD_EPSILON) {
-                is_found = true;
-                break;
+        if (Dot * dot_to_find = dynamic_cast<Dot*>(shape_to_find); dot_to_find != nullptr)
+        {
+            for (const auto &candidate_point: candidates)
+            {
+                Dot candidate_dot = Dot(candidate_point.x, candidate_point.y);
+                if (dot_to_find->equals(&candidate_dot))
+                {
+                    is_found = true;
+                    break;
+                }
+            }
+        }
+        else
+        {
+            for (vector<Shape*>::iterator candidate_shape = this->shapes_->begin(); candidate_shape <= cur_shape_it; ++candidate_shape)
+            {
+                if (shape_to_find->equals(*candidate_shape))
+                {
+                    is_found = true;
+                    break;
+                }
             }
         }
         if (!is_found) {
@@ -35,25 +52,12 @@ bool Engine::chekc_intersections(vector<Point> & candidates)
     for (const auto& p : candidates) {
         cout << std::format("x: {:.6f}, y: {:.6f}\n", p.x, p.y);
     }
+    for (const auto& s : *this->shapes_) {
+        cout << *s;
+    }
 
     this->is_solved_ = true;
     return true;
-
-//    for (Point candidate_point : candidates)
-//    {
-//
-//        this->points_to_find_.erase(remove_if(this->points_to_find_.begin(), this->points_to_find_.end(),
-//                            [candidate_point](Point point)
-//                            {
-//                                return fabs(point.x - candidate_point.x) + fabs(point.y - candidate_point.y) < GD_EPSILON;
-//                            }),
-//        this->points_to_find_.end());
-//    }
-//    if (this->points_to_find_.size() == 0)
-//    {
-//        this->is_solved_ = true;
-//    }
-//    return this->is_solved_;
 }
 
 void Engine::permutate_points(vector<Point> & points, vector<pair<Point, Point>> & permutated_points)
@@ -96,14 +100,18 @@ void Engine::concat_points(vector<Point> * old_intersections, vector<Point> * ne
     vector<Point>  tmp_intersections;
     for (auto it_old = old_intersections->begin(); it_old != old_intersections->end(); ++it_old)
     {
+        bool is_unique = true;
         for (auto it_new = new_intersections->begin(); it_new != new_intersections->end(); ++it_new)
         {
             if (std::abs(it_old->x - it_new->x) < GD_EPSILON && std::abs(it_old->y - it_new->y) < GD_EPSILON)
             {
-                continue;
+                is_unique = false;
             }
         }
-        tmp_intersections.push_back(*it_old);
+        if (is_unique)
+        {
+            tmp_intersections.push_back(*it_old);
+        }
     }
 
     new_intersections->insert(new_intersections->end(), tmp_intersections.begin(), tmp_intersections.end() );
@@ -138,10 +146,6 @@ bool Engine::solve(vector<Point> * intersections, vector<Shape*>::iterator shape
 
 //        new_intersections.insert( new_intersections.end(), current_intersections.begin(), current_intersections.end() );
         this->concat_points(&current_intersections, &new_intersections);
-        if (this->chekc_intersections(new_intersections))
-        {
-            break;
-        }
 
         if (*cur_shape != this->shapes_->back())
         {
@@ -150,6 +154,16 @@ bool Engine::solve(vector<Point> * intersections, vector<Shape*>::iterator shape
             {
                 break;
             }
+        }
+
+        if (this->chekc_intersections(new_intersections, cur_shape))
+        {
+            break;
+        }
+
+        if ((*cur_shape)->is_anchored())
+        {
+            break;
         }
     }
 

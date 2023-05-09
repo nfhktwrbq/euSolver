@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 #include "intersection.h"
+#include "line.h"
 #include <math.h>
 #include <format>
 
@@ -55,10 +56,81 @@ void Intersection::line_line_intersection(real_t a0, real_t b0, real_t c0, real_
     }
 }
 
+void Intersection::line_line_intersection(const Line& line0, const Line& line1, vector<Point>& intersections)
+{
+    if (isinf(line0.get_k()) && !isinf(line1.get_k()))
+    {
+        real_t x = line0.get_x();
+        real_t y = line1.get_k() * x + line1.get_b();
+        add_point_(intersections, Point(x, y));
+    }
+    else if (!isinf(line0.get_k()) && isinf(line1.get_k()))
+    {
+        real_t x = line1.get_x();
+        real_t y = line0.get_k() * x + line0.get_b();
+        add_point_(intersections, Point(x, y));
+    }
+    else if (!isinf(line0.get_k()) && !isinf(line1.get_k()))
+    {
+        line_line_intersection(line0.get_k(), line0.get_b(), line1.get_k(), line1.get_b(), intersections);
+    }
+}
+
+void Intersection::dot_line_intersection(const Dot& dot, const Line& line, vector<Point>& intersections)
+{
+    Point point = dot.get_point();
+    if (isinf(line.get_k()))
+    {
+        if (fabs(point.x - line.get_x()) < GD_EPSILON)
+        {
+            add_point_(intersections, point);
+        }
+    }
+    else
+    {
+        dot_line_intersection(point.x, point.y, line.get_k(), line.get_b(), intersections);
+    }
+}
+
+void Intersection::line_circle_intersection(const Line& line, const Circle& circle, vector<Point>& intersections)
+{
+    if (isinf(line.get_k()))
+    {
+        real_t r = circle.get_r();
+        real_t x0 = circle.get_xc();
+        real_t y0 = circle.get_yc();
+        real_t x = line.get_x();
+
+        real_t d = std::sqrt(r * r - (x - x0) * (x - x0)); // дискриминант
+        if (std::isnan(d))
+        {
+            return;
+        }
+        else if (d < GD_EPSILON)
+        {
+            Point p1;
+            p1.x = x;
+            p1.y = y0;
+            add_point_(intersections, p1);
+        } else {
+            Point p1;
+            Point p2;
+            p1.x = x;
+            p1.y = y0 + d;
+            p2.x = x;
+            p2.y = y0 - d;
+            add_point_(intersections, p1);
+            add_point_(intersections, p2);
+        }
+    }
+    else
+    {
+        line_circle_intersection(line.get_k(), line.get_b(), circle.get_xc(), circle.get_yc(), circle.get_r(), intersections);
+    }
+}
+
 void Intersection::line_line_intersection(real_t k0, real_t b0, real_t k1, real_t b1, vector<Point>& intersections)
 {
-    vector<pair<real_t, real_t>> * result = nullptr;
-
     if (fabs(k0 - k1) >= GD_EPSILON)
     {
         real_t x = (b1 - b0) / (k0 - k1);
@@ -86,8 +158,6 @@ void Intersection::line_circle_intersection(real_t k, real_t b, real_t xc, real_
     real_t C = xc * xc + (b - yc) * (b - yc) - r * r;
 
     real_t D = B * B - 4.0 * A * C;
-
-    vector<pair<real_t, real_t>> * result = nullptr;
 
     if (D < 0.0)
     {
@@ -125,7 +195,7 @@ void Intersection::circle_circle_intersection(real_t xc0, real_t yc0, real_t r0,
         return; // Окружности не пересекаются
     }
 
-    if (d == 0)
+    if (d < GD_EPSILON)
     {
         return;
     }
@@ -133,6 +203,12 @@ void Intersection::circle_circle_intersection(real_t xc0, real_t yc0, real_t r0,
     // Находим координаты точек пересечения
     real_t a = (r0 * r0 - r1 * r1 + d * d) / (2.0 * d);
     real_t h = std::sqrt(r0 * r0 - a * a);
+
+    if (h != h)
+    {
+        return;
+    }
+
     real_t x2 = xc0 + a * (xc1 - xc0) / d;
     real_t y2 = yc0 + a * (yc1 - yc0) / d;
 
